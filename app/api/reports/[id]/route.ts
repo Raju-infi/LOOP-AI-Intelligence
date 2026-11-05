@@ -1,0 +1,2 @@
+import { db } from '@/lib/db'; import { requireRole } from '@/lib/auth';
+export async function GET(_:Request,{params}:{params:{id:string}}){try{const s=await requireRole(['ADMIN','ANALYST','VIEWER']);const r=await db.report.findFirst({where:{id:params.id,workspaceId:(s.user as any).workspaceId}});if(!r)return Response.json({error:'Not found'},{status:404});return Response.json(r);}catch(e:any){return Response.json({error:e?.message||'Failed'},{status:400});}}

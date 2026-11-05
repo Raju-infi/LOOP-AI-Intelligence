@@ -1,0 +1,3 @@
+import { db } from '@/lib/db'; import { requireRole } from '@/lib/auth'; import { z } from 'zod';
+const Schema=z.object({status:z.enum(['NEW','REVIEWED','ACTIONED']).optional()});
+export async function PATCH(req:Request,{params}:{params:{id:string}}){try{const s=await requireRole(['ADMIN','ANALYST']); const d=Schema.parse(await req.json()); const item=await db.feedback.findFirst({where:{id:params.id,workspaceId:(s.user as any).workspaceId}}); if(!item)return Response.json({error:'Not found'},{status:404}); return Response.json(await db.feedback.update({where:{id:params.id},data:d}));}catch(e:any){return Response.json({error:e?.message||'Failed'},{status:e?.message==='FORBIDDEN'?403:400});}}
